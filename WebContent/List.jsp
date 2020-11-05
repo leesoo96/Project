@@ -4,12 +4,13 @@
 <%@ page import="Board.BoardBeans" %>
 <%@ page import="java.util.Vector" %>
 <jsp:useBean id="BoardMgr" class="Board.BoardMgr" scope="page" />
+<jsp:include page="css_JSP/List.jsp" />
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="EUC-KR">
 <title>JSP 게시판 페이지</title>
- <link rel="stylesheet" href="css/list.css" type="text/css">
+
  <% // 게시물 표시 변수 설정
  // 게시글 
  	int totalPost = 0; // 전체 게시물 수 (DB에 저장된 전체 행 개수 저장)
@@ -21,7 +22,7 @@
  
  // 블럭
  	int totalBlock = 0;
- 	int pageBlockNumber = 15; // 블럭당 표시할 페이지수([1][2]..[10])
+ 	int pageBlockNumber = 15; // 블럭당 표시할 페이지수([1][2]..[15])
  	int nowBlock = 1; // 현재 블럭
  	
  // 게시물을 저장
@@ -77,22 +78,53 @@
  %>
  
  <script>
+//  '처음으로' 링크를 클릭하면 게시판 메인 화면을 보여준다
  	function listRead(){
  		document.listForm.action = "List.jsp";
  		document.listForm.submit();
  	}
+//  제목링크를 클릭하면 해당 게시글로 이동
  	function postRead(post_Num){
  		document.readForm.post_Num.value = post_Num;
  		document.readForm.action = "Read.jsp";
  		document.readForm.submit();
  	}
+// 블럭 처리 = 다음 블럭이나 이전 블럭을 클릭하면  readForm의 nowPage에 해당 블럭의 시작 페이지 번호를 전달한다
+ 	function moveBlock(value){
+ 		document.readForm.nowPage.value=<%=pageBlockNumber%> * (value - 1) + 1;
+ 		document.readForm.submit();      //    15            *  1 - 1 = 0  + 1 = 1
+ 	}
+// 페이징처리 = 특정 블럭번호를 클릭하면 그에 해당하는 페이지의 게시물 표시
+ 	function paging(page){
+ 		document.readForm.nowPage.value = page;
+ 		document.readForm.submit();
+ 	}
+// 검색창에 검색할 문자(열)를 입력하지않을 경우 알람창이 뜨도록 함
+	function searchCheck(){
+		if(document.searchForm.keyWord.value == ""){
+			alert("검색어를 입력해주세요.");
+			document.searchForm.keyWord.focus();
+			return false;
+		}
+	  document.searchForm.submit();
+	}
  </script>
 </head>
+
 <body>
-<h2>게시판</h2>
+<h2>Welcome to the bulletin board</h2>
+<table>
+	<tr>
+		<td align=right id="topLinkMenu">
+     		 <a href="Post.jsp">[글쓰기]</a> 
+     		 <a href="#" onClick="listRead()">[처음으로]</a>
+   	 	</td>
+   	</tr>
+ </table>
+ 
 <table id="board_title">
   <tr>
-    <td>Total(<%=totalPost %>) 목록(<%=nowPage %> / <%=totalPage %> PAGE)</td>
+    <td>Total(<%=totalPost %>)&nbsp;&nbsp;&nbsp;목록(<%=nowPage %> / <%=totalPage %> PAGE)</td>
   </tr>
 </table>
 
@@ -123,7 +155,7 @@
   				String registration_date = beans.getRegistration_date();
   				int post_Count = beans.getPost_Count();
   %> 
- 	 <tr>   <!-- 본문 -->       
+ 	 <tr class="listContent">   <!-- 본문 -->       
    		<td><%=totalPost-((nowPage-1)*pageNumber)-i %></td>
    		<td><a href="javascript:postRead('<%=post_Num%>')"><%=wirter_Subject %></a></td>
    	 	<td><%=writer_Name %></td>
@@ -137,29 +169,60 @@
   %>
 </table>
 
-<table id="board_menu_bottom">
-  <tr>
-    <td>block</td>
-    <td align=right>
-      <a href="Post.jsp">글쓰기</a>
-      <a href="#" onClick="listRead()">처음으로</a>
-    </td>
-  </tr>
+<!-- 페이지 넘기기 처리 -->
+<table id="blockMenu">
+	<tr>
+		<td>
+			<%
+			//  블록에 표시되는 페이지 시작 번호 [1]
+			//                     1-1 = 0     *        15       + 1 = 1
+				int pageStart = (nowBlock - 1) * pageBlockNumber + 1;
+			                         
+			// pageStart + pageBlockNumber 의 결과가 totalPage 보다 작거나 같으면 pageStart + pageBlockNumber 을 결과로 얻고 
+			// 그렇지않으면 totalPage + 1 을 결과로 얻는다
+				int pageEnd = ((pageStart + pageBlockNumber) <= totalPage)? (pageStart + pageBlockNumber) : totalPage + 1;
+			
+				if(totalPage != 0){ // 1페이지 이상 존재할 경우 
+					if(nowBlock > 1){
+						%>
+						    <!-- 이전 블록으로 이동 -->
+							<a href="javascript:moveBlock('<%=nowBlock - 1%>')">◀</a>
+						<% 
+					}
+					for(; pageStart < pageEnd; pageStart++){
+						%>
+							<!-- 특정 블럭 클릭 시 해당하는 페이지 출력 -->
+							<a href="javascript:paging('<%=pageStart%>')">
+								[<%=pageStart %>]
+							</a>
+						<% 
+					}
+					if(totalBlock > nowBlock){
+						%>
+							<!-- 다음 블록으로 이동 -->
+							<a href="javascript:moveBlock('<%=nowBlock + 1%>')">▶</a>
+						<% 
+					}
+				}
+			%>                                   
+		</td>
+		
+	</tr>
 </table>
 
 <!-- 검색용 폼 -->
 <form action="List.jsp" method="get" name="searchForm">
-  <table>
+  <table id="searchMenu">
     <tr>
       <td>
-        <select name="keyField">
+        <select name="keyField" size="1">
           <option value="writer_Name">이름</option>
           <option value="writer_Subject">제목</option>
           <option value="writer_Content">내용</option>
         </select>
-        <input name="keyWord" size="15" />
-        <input type="button" value="찾기" onclick="#" />
-        <input type="hidden" name="nowPage" value="찾기" />
+        <input name="keyWord" size="16" />
+        <input type="button" value="찾기" onclick="searchCheck()" />
+        <input type="hidden" name="nowPage" value="1" />
       </td>
     </tr>
   </table>
@@ -174,7 +237,10 @@
 <!-- 페이징 처리 폼 -->
 <form name="readForm" method="get">
 	<input type="hidden" name="post_Num" />
+	
+	<!-- 블럭처리 관련 부분  -->
 	<input type="hidden" name="nowPage" value="<%=nowPage %>" />
+	
 	<input type="hidden" name="keyField" value="<%=keyField %>" />
 	<input type="hidden" name="keyWord" value="<%=keyWord %>" />
 </form>
