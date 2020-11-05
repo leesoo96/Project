@@ -9,7 +9,7 @@
 <html>
 <head>
 <meta charset="EUC-KR">
-<title>JSP 게시판 페이지</title>
+<title>JSP 게시판</title>
 
  <% // 게시물 표시 변수 설정
  // 게시글 
