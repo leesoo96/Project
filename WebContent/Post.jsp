@@ -4,7 +4,7 @@
 <html>
 <head>
 <meta charset="EUC-KR">
-<title>게시물 작성</title>
+<title>게시물 작성하기</title>
 <jsp:include page="css_JSP/Post.jsp" />
 </head>
 <body>

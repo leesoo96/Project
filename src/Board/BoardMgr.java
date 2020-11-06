@@ -145,7 +145,7 @@ public class BoardMgr {
 //			현재 존재하는 게시물의 번호 다음 숫자(게시물이 없으면 1번부터 시작하도록 함)
 			int reply_Ref = 1;
 			if(rs.next()) {
-//			getInt() -> 해당 컬럼의 가장 높은 값을 int형으로 갖고 온다
+//			getInt() -> 해당 컬럼의 가장 높은 값을 int형으로 갖고 온다!
 //		        현재 존재하는 게시물의 번호가 304라면 게시물이 추가되면 305로 값을 나타낸다
 				reply_Ref = rs.getInt(1) + 1;
 			}

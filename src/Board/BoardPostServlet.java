@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 @WebServlet("/Board/BoardPost")
 public class BoardPostServlet extends HttpServlet{
-// 									    사용자 요청을 처리하는 클래스
+// 									    사용자 요청을 처리하는 클래스!
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		req.setCharacterEncoding("EUC-KR");
