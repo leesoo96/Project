@@ -10,7 +10,6 @@
 <head>
 <meta charset="EUC-KR">
 <title>JSP 게시판</title>
-
  <% // 게시물 표시 변수 설정
  // 게시글 
  	int totalPost = 0; // 전체 게시물 수 (DB에 저장된 전체 행 개수 저장)
@@ -76,39 +75,38 @@
  	nowBlock = (int)Math.ceil((double)nowPage / pageBlockNumber);
  	totalBlock = (int)Math.ceil((double)totalPost / pageBlockNumber);
  %>
- 
- <script>
-//  '처음으로' 링크를 클릭하면 게시판 메인 화면을 보여준다
- 	function listRead(){
- 		document.listForm.action = "List.jsp";
- 		document.listForm.submit();
- 	}
-//  제목링크를 클릭하면 해당 게시글로 이동
- 	function postRead(post_Num){
- 		document.readForm.post_Num.value = post_Num;
- 		document.readForm.action = "Read.jsp";
- 		document.readForm.submit();
- 	}
-// 블럭 처리 = 다음 블럭이나 이전 블럭을 클릭하면  readForm의 nowPage에 해당 블럭의 시작 페이지 번호를 전달한다
- 	function moveBlock(value){
- 		document.readForm.nowPage.value=<%=pageBlockNumber%> * (value - 1) + 1;
- 		document.readForm.submit();      //    15            *  1 - 1 = 0  + 1 = 1
- 	}
-// 페이징처리 = 특정 블럭번호를 클릭하면 그에 해당하는 페이지의 게시물 표시
- 	function paging(page){
- 		document.readForm.nowPage.value = page;
- 		document.readForm.submit();
- 	}
-// 검색창에 검색할 문자(열)를 입력하지않을 경우 알람창이 뜨도록 함
-	function searchCheck(){
-		if(document.searchForm.keyWord.value == ""){
-			alert("검색어를 입력해주세요.");
-			document.searchForm.keyWord.focus();
-			return false;
-		}
-	  document.searchForm.submit();
+<script>
+//'처음으로' 링크를 클릭하면 게시판 메인 화면을 보여준다
+	function listRead(){
+		document.listForm.action = "List.jsp";
+		document.listForm.submit();
 	}
- </script>
+//제목링크를 클릭하면 해당 게시글로 이동
+	function postRead(post_Num){
+		document.readForm.post_Num.value = post_Num;
+		document.readForm.action = "Read.jsp";
+		document.readForm.submit();
+	}
+//블럭 처리 = 다음 블럭이나 이전 블럭을 클릭하면  readForm의 nowPage에 해당 블럭의 시작 페이지 번호를 전달한다
+	function moveBlock(value){
+		document.readForm.nowPage.value=<%=pageBlockNumber%> * (value - 1) + 1;
+		document.readForm.submit();      //    15            *  1 - 1 = 0  + 1 = 1
+	}
+//페이징처리 = 특정 블럭번호를 클릭하면 그에 해당하는 페이지의 게시물 표시
+	function paging(page){
+		document.readForm.nowPage.value = page;
+		document.readForm.submit();
+	}
+//검색창에 검색할 문자(열)를 입력하지않을 경우 알람창이 뜨도록 함
+function searchCheck(){
+	if(document.searchForm.keyWord.value == ""){
+		alert("검색어를 입력해주세요.");
+		document.searchForm.keyWord.focus();
+		return false;
+	}
+  document.searchForm.submit();
+}
+</script>
 </head>
 
 <body>

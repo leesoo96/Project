@@ -4,7 +4,7 @@
 <html>
 <head>
 <meta charset="EUC-KR">
-<title>css</title>
+<title>게시판</title>
 <style>
 @font-face {
     font-family: 'MapoGoldenPier';

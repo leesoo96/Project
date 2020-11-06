@@ -1,9 +1,16 @@
 package Board;
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Vector;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.oreilly.servlet.MultipartRequest;
+import com.oreilly.servlet.multipart.DefaultFileRenamePolicy;
 
 public class BoardMgr {
 	private DBConnectionMgr pool;
@@ -111,5 +118,76 @@ public class BoardMgr {
 		return vectorBoardList;
 	}
 	
-	
+//	BoardPostServlet
+	public void insertBoard(HttpServletRequest req) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		String sql = null;
+		
+//		파일 업로드 클래스
+		MultipartRequest multi = null;
+		
+//		파일 관련 변수
+		int fileSize = 0;
+		String fileName = null;
+		
+
+		try {
+			conn = pool.getConnection();
+			
+//			총 게시물의 수가 304면 304 라는 값을 가지고 온다
+//			MAX -> post_Num의 가장 큰 값을 가지고 온다
+			sql = "SELECT MAX(post_Num) FROM tblBoard";
+			pstmt = conn.prepareStatement(sql);
+			rs = pstmt.executeQuery();
+			
+//			현재 존재하는 게시물의 번호 다음 숫자(게시물이 없으면 1번부터 시작하도록 함)
+			int reply_Ref = 1;
+			if(rs.next()) {
+//			getInt() -> 해당 컬럼의 가장 높은 값을 int형으로 갖고 온다
+//		        현재 존재하는 게시물의 번호가 304라면 게시물이 추가되면 305로 값을 나타낸다
+				reply_Ref = rs.getInt(1) + 1;
+			}
+			
+//			파일 객체 생성
+			File file = new File(SAVEFOLDER); 
+			if(!file.exists()) { // 파일이 없으면
+				file.mkdirs(); // 지정한 경로에 폴더를 만들고 파일을 만든다
+//				 mkdir() = 지정한 경로에 폴더가 있어야만 파일을 만든다 
+			}
+			
+			multi = new MultipartRequest(req, SAVEFOLDER, MAXSIZE, ENCTYPE, new DefaultFileRenamePolicy());
+
+//			                                  Enumeration -> 열거형  인터페이스
+//	 폼 요소 중 file 속성으로 지정된 input태그의 name값을 Enumeration객체를 반환한다
+			if(multi.getFilesystemName("fileName") != null) {
+//			       발견되는 파일 이름이 있으면 
+				fileName = multi.getFilesystemName("fileName");
+				fileSize = (int)multi.getFile("fileName").length();
+			}
+			
+			String writer_Content = multi.getParameter("writer_Content");
+			
+			sql = "INSERT INTO tblBoard(writer_Name,writer_Subject,writer_Content,reply_Pos,reply_Ref,reply_Depth,registration_date,post_Password,writer_Ip,post_Count,fileName,fileSize)";
+			sql += "VALUES(?,?,?,0,?,0,now(),?,?,0,?,?)";
+			
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, multi.getParameter("writer_Name"));
+			pstmt.setString(2, multi.getParameter("writer_Subject"));
+			pstmt.setString(3, writer_Content);
+			pstmt.setInt(4, reply_Ref);
+			pstmt.setString(5, multi.getParameter("post_Password"));
+			pstmt.setString(6, multi.getParameter("writer_Ip"));
+			pstmt.setString(7, fileName);
+			pstmt.setInt(8, fileSize);
+			
+			pstmt.executeUpdate(); // insert문 실행
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			pool.freeConnection(conn, pstmt, rs);
+		}
+	}
 }
