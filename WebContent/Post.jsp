@@ -6,6 +6,9 @@
 <meta charset="EUC-KR">
 <title>게시물 작성하기</title>
 <jsp:include page="css_JSP/Post.jsp" />
+<script>
+
+</script>
 </head>
 <body>
     <table id="writer_head">

@@ -115,7 +115,7 @@ function searchCheck(){
 	<tr>
 		<td align=right id="topLinkMenu">
      		 <a href="Post.jsp">[글쓰기]</a> 
-     		 <a href="#" onClick="listRead()">[처음으로]</a>
+     		 <a href="List.jsp" onClick="listRead()">[처음으로]</a>
    	 	</td>
    	</tr>
  </table>

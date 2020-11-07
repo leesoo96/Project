@@ -1,6 +1,9 @@
 package Board;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,6 +11,9 @@ import java.sql.ResultSet;
 import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.jsp.JspWriter;
+import javax.servlet.jsp.PageContext;
 
 import com.oreilly.servlet.MultipartRequest;
 import com.oreilly.servlet.multipart.DefaultFileRenamePolicy;
@@ -188,6 +194,116 @@ public class BoardMgr {
 			e.printStackTrace();
 		} finally {
 			pool.freeConnection(conn, pstmt, rs);
+		}
+	}
+	
+//	Read.jsp
+	public void countCheck(int post_Num) { // 조회수 메소드
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		String sql = null;
+		
+		try {
+			conn = pool.getConnection();
+			sql = "UPDATE tblBoard SET post_Count=post_Count+1 WHERE post_Num=?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, post_Num);
+			pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			pool.freeConnection(conn, pstmt);
+		}
+	}
+	
+//	게시글에 입력되어져있는 값 가져오기
+	public BoardBeans getPost(int post_Num) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		String sql = null;
+		BoardBeans beans = new BoardBeans();
+		
+		try {
+			conn = pool.getConnection();
+			sql = "SELECT * FROM tblBoard WHERE post_Num=?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, post_Num);
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				beans.setPost_Num(rs.getInt("post_Num"));
+				beans.setWriter_Name(rs.getString("writer_Name"));
+				beans.setWriter_Subject(rs.getString("writer_Subject"));
+				beans.setWriter_Content(rs.getString("writer_Content"));
+				beans.setReply_Pos(rs.getInt("reply_Pos"));
+				beans.setReply_Ref(rs.getInt("reply_Ref"));
+				beans.setReply_Depth(rs.getInt("reply_Depth"));
+				beans.setRegistration_date(rs.getString("registration_Date"));
+				beans.setPost_Password(rs.getString("post_Password"));
+				beans.setWriter_Ip(rs.getString("writer_Ip"));
+				beans.setPost_Count(rs.getInt("post_Count"));
+				beans.setFileName(rs.getString("fileName"));
+				beans.setFileSize(rs.getInt("fileSize"));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			pool.freeConnection(conn, pstmt, rs);
+		}
+		
+		return beans;
+	}
+	
+//	Download.jsp
+	public void downloadFile(HttpServletRequest req, HttpServletResponse res, JspWriter out, PageContext pagecontext) throws IOException{
+		String filename = req.getParameter("fileName");
+		File file = new File(SAVEFOLDER + "/" + filename);
+		byte[] b = new byte[(int) file.length()];
+		
+		res.setHeader("Accept-Ranges", "bytes");
+		/*	Accept-Ranges 응답 HTTP 헤더 = 값의 범위를 정의하기위해서 사용되는 단위
+	  									헤더가 존재하면 브라우저는 처음부터 다시 다운로드를 하지않고 
+										중단된 다운로드를 다시 재개한다
+		option : none - 사용안함
+	  	option : byte - byte단위 범위로 지정 */
+		
+//		application/smnet = 다운로드 창이 뜨지않고 바로 열기동작을 수행한다
+		res.setContentType("application/smnet;charset=euc-kr");
+		
+		res.setHeader("Content-Disposition", "filename" + filename + ";");
+/*		Disposition 헤더 = 브라우저에 Content가 inline으로 표시될지 
+							  attachment로 표시될지의 여부를 나타낸다
+	inline -> 웹페이지로 혹은 웹페이지 내에서 표시(기본값)
+	attachment -> 로컬 다운로드 & 저장(대부분 브라우저는 바로 다운로드되거나 save as 다이얼로그가 표시된다 
+				  attachment;filename으로 해주면 attachment가 적용된다
+*/
+		
+/* 파일 다운로드 코드 구현 시 주의점
+   JSP페이지는 기본적으로 OutputStream이 Out이라는 객체에 정의되어있다.
+      그래서 jsp에 새로 OutputStream을 생성하면 에러가 발생한다
+      이를 해결하기위해서는 본래 기본으로 갖고 있던 out 객체를 비워주고 새로운 객체를 선언하면 된다
+*/		out = pagecontext.pushBody(); // 기존 Output 스트림 제거
+
+//	파일 다운로드 코드
+		if(file.isFile()) { // 파일이 있으면
+/*	BufferedInputStream, BufferedOutputStream => 바이트 단위 입출력 스트림	
+바이트 단위 입출력 스트림 : 그림, 멀티미디어, 문자등 모든 종류의 데이터들을 주고받을 수 있다
+문자 단위 입출력 스트림 : 오로지 문자만 주고받을 수 있다.
+*/			BufferedInputStream fileIn = new BufferedInputStream(new FileInputStream(file));
+			BufferedOutputStream fileOut = new BufferedOutputStream(res.getOutputStream());
+		
+			int read = 0;
+			
+//			read -> 입력스트림으로부터 1바이트를 읽고 읽은 바이트를 리턴
+			while((read = fileIn.read(b)) != -1) { // -1이 나오면 더이상 읽을 값이 없다는 의미이다
+				fileOut.write(b, 0, read);
+//				write -> 출력스트림으로부터 1바이트를 보낸다
+			} 
+			
+			fileIn.close();
+			fileOut.close();
+			
 		}
 	}
 }
