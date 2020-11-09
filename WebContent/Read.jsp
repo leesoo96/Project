@@ -33,10 +33,9 @@
 	session.setAttribute("beans", beans);
 // 쿠키는 웹 브라우저에 사용자의 상태를 유지하기 위한 정보를 저장, 
 // 세션(session)은 웹 서버 쪽의 웹 컨테이너에 상태를 유지하기 위한 정보를 저장
-
 %>
 <script>
-	function donwload(fileName){
+	function download(fileName){
 		document.downloadForm.fileName.value = fileName;
 		document.downloadForm.submit();
 	}

@@ -257,8 +257,8 @@ public class BoardMgr {
 	
 //	Download.jsp
 	public void downloadFile(HttpServletRequest req, HttpServletResponse res, JspWriter out, PageContext pagecontext) throws IOException{
-		String filename = req.getParameter("fileName");
-		File file = new File(SAVEFOLDER + "/" + filename);
+		String fileName = req.getParameter("fileName");
+		File file = new File(SAVEFOLDER + "/" + fileName);
 		byte[] b = new byte[(int) file.length()];
 		
 		res.setHeader("Accept-Ranges", "bytes");
@@ -271,7 +271,7 @@ public class BoardMgr {
 //		application/smnet = 다운로드 창이 뜨지않고 바로 열기동작을 수행한다
 		res.setContentType("application/smnet;charset=euc-kr");
 		
-		res.setHeader("Content-Disposition", "filename" + filename + ";");
+		res.setHeader("Content-Disposition", "filename" + fileName + ";");
 /*		Disposition 헤더 = 브라우저에 Content가 inline으로 표시될지 
 							  attachment로 표시될지의 여부를 나타낸다
 	inline -> 웹페이지로 혹은 웹페이지 내에서 표시(기본값)
@@ -304,6 +304,29 @@ public class BoardMgr {
 			fileIn.close();
 			fileOut.close();
 			
+		}
+	}
+	
+//  BoardUpdateServlet
+	public void updateBoard(BoardBeans beans) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		String sql = null;
+		
+		try {
+			conn = pool.getConnection();
+			sql = "UPDATE tblBoard SET writer_Name=?,writer_Subject=?,writer_Content=? WHERE post_Num=?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, beans.getWriter_Name());
+			pstmt.setString(2, beans.getWriter_Subject());
+			pstmt.setString(3, beans.getWriter_Content());
+			pstmt.setInt(4, beans.getPost_Num());
+			
+			pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			pool.freeConnection(conn, pstmt);
 		}
 	}
 }

@@ -4,8 +4,9 @@
 <html>
 <head>
 <meta charset="EUC-KR">
-<title>게시글 읽기</title>
-<style type="text/css">
+<title>답변글</title>
+<style>
+@charset "UTF-8";
 @font-face {
     font-family: 'MaruBuri-Regular';
     src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-10-21@1.0/MaruBuri-Regular.woff') format('woff');
@@ -19,10 +20,10 @@
     font-style: normal;
 }
 
-body{
+body {
   overflow-x: hidden;
 }
-div, ul, li {
+div, ul, li, p, textarea {
   margin: 0;
   padding: 0;
 }
@@ -45,70 +46,80 @@ ul li {
 #read_Table_Head td{
   text-align: center;
   font-family: 'MaruBuri-Regular';
-  font-weight: bold;
   font-size: 20px;
+  font-weight: bold;
 }
 
 #read_Box{
   border-top: 2px solid black;
   width: 75%;
   margin: 0 auto;
-}
-#read_Box_Menu ul{
-
-}
-#read_Box_Menu ul li{
   font-family: 'NEXON Lv2 Gothic';
-  float:left;
-  width: 180px;
-  margin: 0.5% 0.5% 0.5% 5%;
+}
+
+#read_Box_Menu p{
+  margin: 1% 0 1% 3%;
+}
+#read_Box_Menu input{
+  border: 0;
   font-size: 16px;
+  font-family: 'NEXON Lv2 Gothic';
+  width: 60%;
 }
 
 #read_Box_Content{
   clear: both;
   border-top: 2px solid gray;
 }
-#read_Box_Content ul{
-  margin-bottom: 1.5%;
+#read_Box_Content p {
+  margin: 1% 0 1% 3%;
+}
 
-}
-#read_Box_Content ul{
-  padding: 1.5% 0 1.2% 5%;
-  border-bottom: 2px solid gray;
-}
-#read_Box_Content ul li {
+#read_Box_Content input {
+  border: 0;
   font-size: 16px;
+  width: 70%;
   font-family: 'NEXON Lv2 Gothic';
 }
-#read_Box_Content .readContent li{
-  margin-top: -2%;
-  border: 1px solid black;
-  height: 300px;
+.readContent {
+  border-bottom: 2px solid gray;
 }
-#read_Box_Content .readFile li{
-  margin-top: -1.8%;
+.readContent p {
+  border: 2px solid gray;
+  height: auto;
+  width: 95%;
+  font-size: 16px;
+  padding: 1.3% 0 1.3% 1.3%;
+}
+.reply_Box p {
+  margin: 1% 0 1% 3%;
+}
+.reply_Box textarea {
+  margin: 1% 0 1% 3%;
+  width: 95%;
+  border: 3px solid gray;
+  font-size: 16px;
+  font-family: 'NEXON Lv2 Gothic';
 }
 
 #read_Box_Bottom ul {
   text-align: right;
   float: right;
 }
-#read_Box_Bottom ul li {
+#read_Box_Bottom input{
   font-family: 'NEXON Lv2 Gothic';
-}
-#read_Box_Bottom li a {
-  display: block;
-  width: 50px;
-  height: 30px;
-  float: left;
-  color: #595855;
   font-weight: bold;
+  font-size: 16px;
+  margin-left: 3px;
+  border: 0;
+  color: #595855;
+  background-color: #fff;
 }
-#read_Box_Bottom li a:hover{
+#read_Box_Bottom input:hover{
   font-size: 17px;
   text-decoration: underline;
 }
+
 
 </style>
 </head>
