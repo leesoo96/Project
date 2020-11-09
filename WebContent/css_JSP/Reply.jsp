@@ -6,7 +6,6 @@
 <meta charset="EUC-KR">
 <title>답변글</title>
 <style>
-@charset "UTF-8";
 @font-face {
     font-family: 'MaruBuri-Regular';
     src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-10-21@1.0/MaruBuri-Regular.woff') format('woff');
