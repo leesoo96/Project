@@ -329,4 +329,103 @@ public class BoardMgr {
 			pool.freeConnection(conn, pstmt);
 		}
 	}
+	
+/*	BoardReplyServlet
+ 
+        답변글 이전에 있는 게시글의 위치값을 수정하기위한 메소드
+	reply_Ref -> 게시글이 답글일 경우 원 글의 게시물번호를 저장
+	reply_Pos -> 게시글의 위치
+*/	public void replyUpdateBoard(int reply_Ref, int reply_Pos) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		String sql = null;
+		
+		try {
+			conn = pool.getConnection();                                   
+			sql = "UPDATE tblBoard SET reply_Pos = reply_Pos + 1 WHERE reply_Ref= ? and reply_Pos > ?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, reply_Ref);
+			pstmt.setInt(2, reply_Pos);
+			
+			pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			pool.freeConnection(conn, pstmt);
+		}
+	}
+	
+//	답변글 등록 메소드
+	public void replyBoard(BoardBeans beans) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		String sql = null;
+		
+		try {
+			conn = pool.getConnection();
+			sql = "INSERT INTO tblBoard(writer_Name,writer_Subject,writer_Content,reply_Pos,reply_Ref,reply_Depth,registration_date,post_Password,writer_Ip,post_Count)";
+			sql += "VALUE(?,?,?,?,?,?,now(),?,?,0)";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, beans.getWriter_Name());
+			pstmt.setString(2, beans.getWriter_Subject());
+			pstmt.setString(3, beans.getWriter_Content());
+			pstmt.setInt(4, beans.getReply_Pos()+1);
+			pstmt.setInt(5, beans.getReply_Ref());
+			pstmt.setInt(6, beans.getReply_Depth()+1);
+			pstmt.setString(7, beans.getPost_Password());
+			pstmt.setString(8, beans.getWriter_Ip());
+			
+			pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			pool.freeConnection(conn, pstmt);
+		}
+	}
+	
+//	Delete.jsp
+//	게시물 번호에 해당되는 게시물 삭제
+	public void deletePost(int post_Num) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		String sql = null;
+		boolean flag = false;
+		
+		try {
+			conn = pool.getConnection();
+			
+//			1. 게시물의 첨부파일도 같이 삭제
+			sql = "SELECT fileName FROM tblBoard WHERE post_Num=?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, post_Num);
+			rs = pstmt.executeQuery();
+			
+			String fileName = null;
+			
+			if(rs != null) {
+				while(rs.next()) {
+					fileName = rs.getString("fileName");
+				}
+			}
+			
+			File file = new File(SAVEFOLDER + "/" + fileName);
+			
+//			      파일이 존재하는가         파일이 폴더(디렉토리)가 아닌 진짜 파일을 명시하는가
+			if(file.exists() && file.isFile()) {
+				file.delete(); // 파일 삭제
+			}
+			
+//			2. 게시물 삭제
+			sql = "DELETE FROM tblBoard WHERE post_Num=?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, post_Num);
+			
+			pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			pool.freeConnection(conn, pstmt, rs);
+		}
+	}
 }

@@ -77,6 +77,7 @@
               <%
             	  }
               %>
+          
             </div>
 
             <div id="read_Box_Bottom">
@@ -85,7 +86,7 @@
                   <a href="List.jsp">리스트</a>
                   <a href="Update.jsp?nowPage=<%=nowPage%>&post_Num=<%=post_Num%>">수정</a>
                   <a href="Reply.jsp?nowPage=<%=nowPage%>">답변</a>
-                  <a href="#">삭제</a>
+                  <a href="Delete.jsp?nowPage=<%=nowPage%>&post_Num=<%=post_Num%>">삭제</a>
                 </li>
               </ul>
             </div>
